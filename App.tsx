@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ViewState, ServiceType, UserRole, Requisition, ActivityLog, RequisitionStatus, User } from './types';
 import { CURRENT_USER, ADMIN_USER } from './constants';
 import { Layout } from './components/Layout';
@@ -9,17 +9,86 @@ import { AdminDashboard } from './views/AdminDashboard';
 import { UserProfile } from './views/UserProfile';
 import { AdminReports } from './views/AdminReports';
 import { AdminActivityLog } from './views/AdminActivityLog';
+import { supabase } from './lib/supabaseClient';
 
 const App: React.FC = () => {
   const [viewState, setViewState] = useState<ViewState>('login');
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   
   // Shared State
   const [requisitions, setRequisitions] = useState<Requisition[]>([]);
   const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
 
+  // Fetch initial data from Supabase
+  useEffect(() => {
+    fetchData();
+
+    // Set up Realtime Subscription
+    const channel = supabase
+      .channel('db-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'requisitions' }, () => {
+        fetchRequisitions();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'activity_logs' }, () => {
+        fetchLogs();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const fetchRequisitions = async () => {
+    const { data, error } = await supabase
+      .from('requisitions')
+      .select('*')
+      .order('date', { ascending: false });
+    
+    if (data) {
+      // Map snake_case DB columns to camelCase TS types
+      const mapped: Requisition[] = data.map((item: any) => ({
+        id: item.id,
+        serviceId: item.service_id,
+        requesterName: item.requester_name,
+        requesterId: item.requester_id,
+        department: item.department,
+        date: item.date,
+        status: item.status,
+        summary: item.summary,
+        comments: item.comments
+      }));
+      setRequisitions(mapped);
+    }
+    if (error) console.error('Error fetching requisitions:', error);
+  };
+
+  const fetchLogs = async () => {
+    const { data, error } = await supabase
+      .from('activity_logs')
+      .select('*')
+      .order('timestamp', { ascending: false });
+    
+    if (data) {
+      const mapped: ActivityLog[] = data.map((item: any) => ({
+        id: item.id,
+        action: item.action,
+        user: item.user_name,
+        timestamp: item.timestamp,
+        type: item.type
+      }));
+      setActivityLogs(mapped);
+    }
+    if (error) console.error('Error fetching logs:', error);
+  };
+
+  const fetchData = () => {
+    setIsLoading(true);
+    Promise.all([fetchRequisitions(), fetchLogs()]).finally(() => setIsLoading(false));
+  };
+
   const handleLogin = (role: UserRole) => {
-    // Initialize user state based on role from constants
     if (role === 'admin') {
       setCurrentUser({ ...ADMIN_USER, role: 'admin' });
       setViewState('admin-dashboard');
@@ -66,40 +135,67 @@ const App: React.FC = () => {
 
   // --- Actions ---
 
-  const handleCreateRequisition = (newRequisition: Requisition) => {
-    setRequisitions(prev => [newRequisition, ...prev]);
+  const handleCreateRequisition = async (newRequisition: Requisition) => {
+    // 1. Insert into DB
+    const { error } = await supabase.from('requisitions').insert([{
+      id: newRequisition.id,
+      service_id: newRequisition.serviceId,
+      requester_name: newRequisition.requesterName,
+      requester_id: newRequisition.requesterId,
+      department: newRequisition.department,
+      date: newRequisition.date,
+      status: newRequisition.status,
+      summary: newRequisition.summary,
+      comments: newRequisition.comments
+    }]);
+
+    if (error) {
+      console.error('Error creating requisition:', error);
+      return;
+    }
     
-    // Log creation
-    const newLog: ActivityLog = {
-      id: `LOG-${Math.floor(Math.random() * 10000)}`,
+    // 2. Log creation
+    const newLog = {
+      id: `LOG-${Math.floor(Math.random() * 100000)}`,
       action: `New requisition ${newRequisition.id} submitted by ${newRequisition.requesterName}`,
-      user: newRequisition.requesterName,
+      user_name: newRequisition.requesterName,
       timestamp: new Date().toLocaleTimeString(),
       type: 'info'
     };
-    setActivityLogs(prev => [newLog, ...prev]);
+
+    await supabase.from('activity_logs').insert([newLog]);
   };
 
-  const handleRequisitionAction = (id: string, action: RequisitionStatus, comment?: string) => {
-    // 1. Update Requisition Status and Comment
-    setRequisitions(prev => prev.map(req => 
-      req.id === id ? { ...req, status: action, comments: comment || req.comments } : req
-    ));
+  const handleRequisitionAction = async (id: string, action: RequisitionStatus, comment?: string) => {
+    // 1. Update Requisition Status and Comment in DB
+    const updates: any = { status: action };
+    if (comment) updates.comments = comment;
 
-    // 2. Add to Activity Log
-    let logType: ActivityLog['type'] = 'info';
+    const { error } = await supabase
+      .from('requisitions')
+      .update(updates)
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error updating requisition:', error);
+      return;
+    }
+
+    // 2. Add to Activity Log in DB
+    let logType = 'info';
     if (action === 'Approved') logType = 'success';
     if (action === 'Rejected') logType = 'error';
     if (action === 'In Review') logType = 'warning';
 
-    const newLog: ActivityLog = {
-      id: `LOG-${Math.floor(Math.random() * 10000)}`,
+    const newLog = {
+      id: `LOG-${Math.floor(Math.random() * 100000)}`,
       action: `${action} request ${id}${comment ? ` with comment: "${comment}"` : ''}`,
-      user: currentUser?.role === 'admin' ? currentUser.name : 'System',
+      user_name: currentUser?.role === 'admin' ? currentUser.name : 'System',
       timestamp: new Date().toLocaleTimeString(),
       type: logType
     };
-    setActivityLogs(prev => [newLog, ...prev]);
+
+    await supabase.from('activity_logs').insert([newLog]);
   };
 
   // Login View

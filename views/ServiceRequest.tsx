@@ -114,7 +114,7 @@ interface ServiceRequestProps {
   user: User;
   serviceId: ServiceType;
   onBack: () => void;
-  onSubmit: (requisition: Requisition) => void;
+  onSubmit: (requisition: Requisition) => Promise<void> | void;
 }
 
 export const ServiceRequest: React.FC<ServiceRequestProps> = ({ user, serviceId, onBack, onSubmit }) => {
@@ -215,12 +215,10 @@ export const ServiceRequest: React.FC<ServiceRequestProps> = ({ user, serviceId,
         summary: generateSummary(serviceId, formData),
       };
 
-      // Simulate network delay
-      setTimeout(() => {
-        setIsSubmitting(false);
-        setIsSuccess(true);
-        onSubmit(newRequisition);
-      }, 1000);
+      await onSubmit(newRequisition);
+      
+      setIsSubmitting(false);
+      setIsSuccess(true);
 
     } catch (err) {
       setIsSubmitting(false);
@@ -232,6 +230,8 @@ export const ServiceRequest: React.FC<ServiceRequestProps> = ({ user, serviceId,
         setErrors(newErrors);
         const firstErrorField = document.querySelector('[aria-invalid="true"]');
         firstErrorField?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        console.error(err);
       }
     }
   };
