@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ViewState, ServiceType, UserRole, Requisition, ActivityLog, RequisitionStatus } from './types';
-import { MOCK_REQUISITIONS, MOCK_ACTIVITY_LOG } from './constants';
+import { ViewState, ServiceType, UserRole, Requisition, ActivityLog, RequisitionStatus, User } from './types';
+import { CURRENT_USER, ADMIN_USER } from './constants';
 import { Layout } from './components/Layout';
 import { Login } from './views/Login';
 import { Dashboard } from './views/Dashboard';
@@ -12,24 +12,32 @@ import { AdminActivityLog } from './views/AdminActivityLog';
 
 const App: React.FC = () => {
   const [viewState, setViewState] = useState<ViewState>('login');
-  const [userRole, setUserRole] = useState<UserRole | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   
-  // Lifted State for Admin Actions
-  const [requisitions, setRequisitions] = useState<Requisition[]>(MOCK_REQUISITIONS);
-  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>(MOCK_ACTIVITY_LOG);
+  // Shared State
+  const [requisitions, setRequisitions] = useState<Requisition[]>([]);
+  const [activityLogs, setActivityLogs] = useState<ActivityLog[]>([]);
 
   const handleLogin = (role: UserRole) => {
-    setUserRole(role);
+    // Initialize user state based on role from constants
     if (role === 'admin') {
+      setCurrentUser({ ...ADMIN_USER, role: 'admin' });
       setViewState('admin-dashboard');
     } else {
+      setCurrentUser({ ...CURRENT_USER, role: 'employee' });
       setViewState('dashboard');
     }
   };
 
   const handleLogout = () => {
     setViewState('login');
-    setUserRole(null);
+    setCurrentUser(null);
+  };
+
+  const handleUpdateUser = (updatedUser: Partial<User>) => {
+    if (currentUser) {
+      setCurrentUser({ ...currentUser, ...updatedUser });
+    }
   };
 
   const handleSelectService = (serviceId: ServiceType) => {
@@ -37,8 +45,7 @@ const App: React.FC = () => {
   };
 
   const handleBackToDashboard = () => {
-    // Navigate based on role
-    if (userRole === 'admin') {
+    if (currentUser?.role === 'admin') {
       setViewState('admin-dashboard');
     } else {
       setViewState('dashboard');
@@ -57,6 +64,22 @@ const App: React.FC = () => {
     setViewState('admin-activity-log');
   };
 
+  // --- Actions ---
+
+  const handleCreateRequisition = (newRequisition: Requisition) => {
+    setRequisitions(prev => [newRequisition, ...prev]);
+    
+    // Log creation
+    const newLog: ActivityLog = {
+      id: `LOG-${Math.floor(Math.random() * 10000)}`,
+      action: `New requisition ${newRequisition.id} submitted by ${newRequisition.requesterName}`,
+      user: newRequisition.requesterName,
+      timestamp: new Date().toLocaleTimeString(),
+      type: 'info'
+    };
+    setActivityLogs(prev => [newLog, ...prev]);
+  };
+
   const handleRequisitionAction = (id: string, action: RequisitionStatus, comment?: string) => {
     // 1. Update Requisition Status and Comment
     setRequisitions(prev => prev.map(req => 
@@ -72,50 +95,54 @@ const App: React.FC = () => {
     const newLog: ActivityLog = {
       id: `LOG-${Math.floor(Math.random() * 10000)}`,
       action: `${action} request ${id}${comment ? ` with comment: "${comment}"` : ''}`,
-      user: 'Admin (31303)',
-      timestamp: 'Just now',
+      user: currentUser?.role === 'admin' ? currentUser.name : 'System',
+      timestamp: new Date().toLocaleTimeString(),
       type: logType
     };
     setActivityLogs(prev => [newLog, ...prev]);
   };
 
-  // Login View (No Layout)
-  if (viewState === 'login') {
+  // Login View
+  if (viewState === 'login' || !currentUser) {
     return <Login onLogin={handleLogin} />;
   }
 
-  // Authenticated Views (With Layout)
+  // Authenticated Views
   return (
     <Layout 
+      user={currentUser}
+      onUpdateUser={handleUpdateUser}
       onLogout={handleLogout} 
       onNavigateHome={handleBackToDashboard}
       onNavigateProfile={handleNavigateProfile}
       onNavigateReports={handleNavigateReports}
       onNavigateActivityLog={handleNavigateActivityLog}
-      isAdmin={userRole === 'admin'}
+      isAdmin={currentUser.role === 'admin'}
     >
-      {viewState === 'admin-dashboard' && userRole === 'admin' && (
+      {viewState === 'admin-dashboard' && currentUser.role === 'admin' && (
         <AdminDashboard 
           requisitions={requisitions} 
           onAction={handleRequisitionAction}
         />
       )}
-      {viewState === 'admin-reports' && userRole === 'admin' && (
-        <AdminReports />
+      {viewState === 'admin-reports' && currentUser.role === 'admin' && (
+        <AdminReports requisitions={requisitions} />
       )}
-      {viewState === 'admin-activity-log' && userRole === 'admin' && (
+      {viewState === 'admin-activity-log' && currentUser.role === 'admin' && (
         <AdminActivityLog logs={activityLogs} />
       )}
-      {viewState === 'dashboard' && userRole === 'employee' && (
+      {viewState === 'dashboard' && currentUser.role === 'employee' && (
         <Dashboard onSelectService={handleSelectService} />
       )}
-      {viewState === 'profile' && userRole === 'employee' && (
-        <UserProfile />
+      {viewState === 'profile' && currentUser.role === 'employee' && (
+        <UserProfile user={currentUser} requisitions={requisitions} />
       )}
       {typeof viewState === 'object' && viewState.type === 'service' && (
         <ServiceRequest 
+          user={currentUser}
           serviceId={viewState.serviceId} 
           onBack={handleBackToDashboard} 
+          onSubmit={handleCreateRequisition}
         />
       )}
     </Layout>
