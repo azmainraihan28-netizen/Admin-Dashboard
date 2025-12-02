@@ -203,18 +203,27 @@ export const ServiceRequest: React.FC<ServiceRequestProps> = ({ user, serviceId,
     try {
       await schema.validate(formData, { abortEarly: false });
       
+      // Serialize files to metadata objects (name, size, type) before creating JSON
+      // Note: In a real app, we would upload to storage bucket here and get URLs
+      const serializedAttachments = (formData.attachments || []).map((file: File) => ({
+        name: file.name,
+        size: file.size,
+        type: file.type
+      }));
+
       // Validation Passed
       const newRequisition: Requisition = {
         id: `REQ-${Math.floor(Math.random() * 90000) + 10000}`,
         serviceId: serviceId,
         requesterName: user.name,
         requesterId: user.id,
+        requesterStaffId: user.staffId, // Include Staff ID
         department: user.department,
         date: new Date().toISOString().split('T')[0],
         status: 'Pending',
         summary: generateSummary(serviceId, formData),
-        formData: formData, // Include full form data
-        attachments: formData.attachments // Include attachments
+        formData: { ...formData, attachments: undefined }, // Store data without raw file objects
+        attachments: serializedAttachments // Store serialized metadata
       };
 
       await onSubmit(newRequisition);

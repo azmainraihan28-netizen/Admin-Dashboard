@@ -113,6 +113,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ requisitions, on
                     <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">Requester</span>
                     <span className="font-medium text-slate-900 dark:text-white">{selectedReq.requesterName}</span>
                     <span className="block text-xs text-slate-500">{selectedReq.department}</span>
+                    {selectedReq.requesterStaffId && (
+                      <span className="block text-xs font-mono text-indigo-600 dark:text-indigo-400 mt-0.5">{selectedReq.requesterStaffId}</span>
+                    )}
                   </div>
                   <div>
                     <span className="block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">Date Submitted</span>
@@ -291,7 +294,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ requisitions, on
                 </tr>
               ) : (
                 filteredRequisitions.map((req) => (
-                  <tr key={req.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors">
+                  <tr key={req.id} onClick={() => handleReviewClick(req.id)} className="hover:bg-slate-50/50 dark:hover:bg-slate-700/50 transition-colors cursor-pointer">
                     <td className="px-6 py-4 font-mono text-slate-600 dark:text-slate-300 font-medium">{req.id}</td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
@@ -317,11 +320,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ requisitions, on
                         {req.status}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-right">
+                    <td className="px-6 py-4 text-right" onClick={(e) => e.stopPropagation()}>
                       {req.status === 'Pending' || req.status === 'In Review' ? (
                         <div className="flex items-center justify-end gap-2">
                            <button 
-                            onClick={() => handleReviewClick(req.id)}
+                            onClick={(e) => { e.stopPropagation(); handleReviewClick(req.id); }}
                             className="group flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 rounded-lg transition-colors border border-blue-200 dark:border-blue-800" 
                             title="Review Request"
                           >
@@ -329,7 +332,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ requisitions, on
                             Review
                           </button>
                           <button 
-                            onClick={() => onAction(req.id, 'Approved')}
+                            onClick={(e) => { e.stopPropagation(); onAction(req.id, 'Approved'); }}
                             className="group flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-900/20 hover:bg-green-100 dark:hover:bg-green-900/40 rounded-lg transition-colors border border-green-200 dark:border-green-800" 
                             title="Approve Request"
                           >
@@ -337,7 +340,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ requisitions, on
                             Approve
                           </button>
                           <button 
-                            onClick={() => onAction(req.id, 'Rejected')}
+                            onClick={(e) => { e.stopPropagation(); onAction(req.id, 'Rejected'); }}
                             className="group flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-colors border border-red-200 dark:border-red-800" 
                             title="Reject Request"
                           >

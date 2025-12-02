@@ -46,6 +46,7 @@ export interface Requisition {
   serviceId: ServiceType;
   requesterName: string;
   requesterId: string;
+  requesterStaffId?: string; // Added for Admin Review visibility
   department: string;
   date: string;
   status: RequisitionStatus;

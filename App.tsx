@@ -54,6 +54,7 @@ const App: React.FC = () => {
         serviceId: item.service_id,
         requesterName: item.requester_name,
         requesterId: item.requester_id,
+        requesterStaffId: item.requester_staff_id, // Map staff ID from DB
         department: item.department,
         date: item.date,
         status: item.status,
@@ -113,7 +114,11 @@ const App: React.FC = () => {
 
     if (error) {
        // Log but don't block login, as it might be a permissions issue or table missing
-      console.warn("Could not sync profile to Supabase. If you are using mock data, this is expected if tables don't exist.", error.message);
+       if (error.code === '23503') {
+          console.error("FK Violation detected. The user ID from constants does not exist in Supabase auth.users. This is expected with mock UUIDs if standard Auth is not used.");
+       } else {
+          console.warn("Could not sync profile to Supabase:", error.message, error.code);
+       }
     }
   };
 
@@ -182,6 +187,7 @@ const App: React.FC = () => {
       service_id: newRequisition.serviceId,
       requester_name: newRequisition.requesterName,
       requester_id: newRequisition.requesterId, // Now a valid UUID
+      requester_staff_id: newRequisition.requesterStaffId, // Store Staff ID
       department: newRequisition.department,
       date: newRequisition.date,
       status: newRequisition.status,
