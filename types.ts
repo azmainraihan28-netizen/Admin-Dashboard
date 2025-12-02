@@ -32,7 +32,8 @@ export type UserRole = 'employee' | 'admin';
 
 export interface User {
   name: string;
-  id: string;
+  id: string; // Must be UUID for Supabase
+  staffId?: string; // Human readable ID (EMP-001)
   department: string;
   avatarUrl: string;
   role: UserRole;

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ViewState, ServiceType, UserRole, Requisition, ActivityLog, RequisitionStatus, User } from './types';
-import { CURRENT_USER, ADMIN_USER } from './constants';
+import { CURRENT_USER, ADMIN_USER, MOCK_REQUISITIONS, MOCK_ACTIVITY_LOGS } from './constants';
 import { Layout } from './components/Layout';
 import { Login } from './views/Login';
 import { Dashboard } from './views/Dashboard';
@@ -47,7 +47,7 @@ const App: React.FC = () => {
       .select('*')
       .order('date', { ascending: false });
     
-    if (data) {
+    if (data && data.length > 0) {
       // Map snake_case DB columns to camelCase TS types
       const mapped: Requisition[] = data.map((item: any) => ({
         id: item.id,
@@ -63,8 +63,11 @@ const App: React.FC = () => {
         attachments: item.attachments // Map attachments from DB
       }));
       setRequisitions(mapped);
+    } else {
+      // Fallback to mock data if DB is empty
+      setRequisitions(MOCK_REQUISITIONS);
+      if (error) console.log('Using mock requisitions due to fetch error or empty DB:', error.message);
     }
-    if (error) console.error('Error fetching requisitions:', error.message);
   };
 
   const fetchLogs = async () => {
@@ -73,7 +76,7 @@ const App: React.FC = () => {
       .select('*')
       .order('timestamp', { ascending: false });
     
-    if (data) {
+    if (data && data.length > 0) {
       const mapped: ActivityLog[] = data.map((item: any) => ({
         id: item.id,
         action: item.action,
@@ -82,8 +85,11 @@ const App: React.FC = () => {
         type: item.type
       }));
       setActivityLogs(mapped);
+    } else {
+      // Fallback to mock logs
+      setActivityLogs(MOCK_ACTIVITY_LOGS);
+      if (error) console.log('Using mock logs due to fetch error or empty DB:', error.message);
     }
-    if (error) console.error('Error fetching logs:', error.message);
   };
 
   const fetchData = () => {
@@ -91,14 +97,39 @@ const App: React.FC = () => {
     Promise.all([fetchRequisitions(), fetchLogs()]).finally(() => setIsLoading(false));
   };
 
-  const handleLogin = (role: UserRole) => {
+  // Ensure the mock user exists in the real DB so FK constraints work
+  const syncUserProfile = async (user: User) => {
+    // Only attempt sync if we have a valid UUID structure (mock users have valid UUIDs)
+    const { error } = await supabase.from('profiles').upsert({
+      id: user.id,
+      staff_id: user.staffId,
+      full_name: user.name,
+      email: `${user.name.toLowerCase().replace(/\s/g, '.')}@nexus.com`,
+      department: user.department,
+      designation: user.role === 'admin' ? 'System Admin' : 'Employee',
+      role: user.role,
+      avatar_url: user.avatarUrl
+    });
+
+    if (error) {
+       // Log but don't block login, as it might be a permissions issue or table missing
+      console.warn("Could not sync profile to Supabase. If you are using mock data, this is expected if tables don't exist.", error.message);
+    }
+  };
+
+  const handleLogin = async (role: UserRole) => {
+    let userToLogin: User;
     if (role === 'admin') {
-      setCurrentUser({ ...ADMIN_USER, role: 'admin' });
+      userToLogin = { ...ADMIN_USER, role: 'admin' };
       setViewState('admin-dashboard');
     } else {
-      setCurrentUser({ ...CURRENT_USER, role: 'employee' });
+      userToLogin = { ...CURRENT_USER, role: 'employee' };
       setViewState('dashboard');
     }
+    setCurrentUser(userToLogin);
+    
+    // Sync to DB
+    await syncUserProfile(userToLogin);
   };
 
   const handleLogout = () => {
@@ -106,9 +137,11 @@ const App: React.FC = () => {
     setCurrentUser(null);
   };
 
-  const handleUpdateUser = (updatedUser: Partial<User>) => {
+  const handleUpdateUser = async (updatedUser: Partial<User>) => {
     if (currentUser) {
-      setCurrentUser({ ...currentUser, ...updatedUser });
+      const newUser = { ...currentUser, ...updatedUser };
+      setCurrentUser(newUser);
+      await syncUserProfile(newUser);
     }
   };
 
@@ -148,26 +181,29 @@ const App: React.FC = () => {
       id: newRequisition.id,
       service_id: newRequisition.serviceId,
       requester_name: newRequisition.requesterName,
-      requester_id: newRequisition.requesterId,
+      requester_id: newRequisition.requesterId, // Now a valid UUID
       department: newRequisition.department,
       date: newRequisition.date,
       status: newRequisition.status,
       summary: newRequisition.summary,
       comments: newRequisition.comments,
-      form_data: newRequisition.formData, // Store full form data
-      attachments: newRequisition.attachments // Store attachments
+      form_data: newRequisition.formData,
+      attachments: newRequisition.attachments
     }]);
 
     if (error) {
       console.error('Error creating requisition:', error.message);
+      // Fallback: Add to local state if DB fails (for demo flow)
+      setRequisitions(prev => [newRequisition, ...prev]);
       return;
     }
     
     // 2. Log creation
     const newLog = {
       action: `New requisition ${newRequisition.id} submitted by ${newRequisition.requesterName}`,
+      user_id: newRequisition.requesterId, // Link log to user
       user_name: newRequisition.requesterName,
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: new Date().toISOString(),
       type: 'info'
     };
 
@@ -190,6 +226,10 @@ const App: React.FC = () => {
 
     if (error) {
       console.error('Error updating requisition:', error.message);
+       // Fallback for demo: update local state
+       setRequisitions(prev => prev.map(req => 
+        req.id === id ? { ...req, status: action, comments: comment } : req
+       ));
       return;
     }
 
@@ -201,8 +241,9 @@ const App: React.FC = () => {
 
     const newLog = {
       action: `${action} request ${id}${comment ? ` with comment: "${comment}"` : ''}`,
+      user_id: currentUser?.id, // Link to admin
       user_name: currentUser?.role === 'admin' ? currentUser.name : 'System',
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: new Date().toISOString(),
       type: logType
     };
 

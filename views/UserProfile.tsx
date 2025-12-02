@@ -59,7 +59,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, requisitions }) 
               </div>
               <div>
                 <p className="text-xs text-slate-400 font-medium uppercase tracking-wide">Employee ID</p>
-                <p className="text-sm font-semibold">{user.id}</p>
+                <p className="text-sm font-semibold">{user.staffId || user.id}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 text-slate-600">
