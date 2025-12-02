@@ -243,11 +243,11 @@ export const ServiceRequest: React.FC<ServiceRequestProps> = ({ user, serviceId,
   if (isSuccess) {
     return (
       <div className="max-w-2xl mx-auto text-center py-12 px-4" aria-live="polite">
-        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-50 text-green-600 mb-6 shadow-sm border border-green-100">
+        <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-green-50 dark:bg-green-900/30 text-green-600 dark:text-green-400 mb-6 shadow-sm border border-green-100 dark:border-green-800">
           <CheckCircle2 size={40} aria-hidden="true" />
         </div>
-        <h2 className="text-3xl font-bold text-slate-900 mb-3">Request Submitted</h2>
-        <p className="text-slate-500 mb-8 max-w-md mx-auto leading-relaxed">
+        <h2 className="text-3xl font-bold text-slate-900 dark:text-white mb-3">Request Submitted</h2>
+        <p className="text-slate-500 dark:text-slate-400 mb-8 max-w-md mx-auto leading-relaxed">
           Your request has been successfully queued and sent to the administration team for approval.
         </p>
         <div className="flex justify-center gap-4">
@@ -277,22 +277,22 @@ export const ServiceRequest: React.FC<ServiceRequestProps> = ({ user, serviceId,
     <div className="max-w-4xl mx-auto">
       <button 
         onClick={onBack}
-        className="group flex items-center text-sm font-medium text-slate-500 hover:text-indigo-600 mb-6 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-md px-2 py-1 -ml-2"
+        className="group flex items-center text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 mb-6 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 rounded-md px-2 py-1 -ml-2"
         aria-label="Back to Service Overview"
       >
         <ArrowLeft size={16} className="mr-1.5 transition-transform group-hover:-translate-x-1" aria-hidden="true" />
         Back to Overview
       </button>
 
-      <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="px-6 py-8 sm:px-10 bg-gradient-to-b from-white to-slate-50/50 border-b border-slate-100">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 overflow-hidden">
+        <div className="px-6 py-8 sm:px-10 bg-gradient-to-b from-white to-slate-50/50 dark:from-slate-800 dark:to-slate-800/50 border-b border-slate-100 dark:border-slate-700">
           <div className="flex items-start gap-5">
-            <div className="p-3.5 bg-white border border-slate-100 rounded-xl shadow-sm text-indigo-600">
+            <div className="p-3.5 bg-white dark:bg-slate-700 border border-slate-100 dark:border-slate-600 rounded-xl shadow-sm text-indigo-600 dark:text-indigo-400">
               <service.icon size={32} strokeWidth={1.5} aria-hidden="true" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{service.title}</h1>
-              <p className="text-slate-500 mt-2 max-w-2xl leading-relaxed">{service.description}</p>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">{service.title}</h1>
+              <p className="text-slate-500 dark:text-slate-400 mt-2 max-w-2xl leading-relaxed">{service.description}</p>
             </div>
           </div>
         </div>
@@ -306,8 +306,8 @@ export const ServiceRequest: React.FC<ServiceRequestProps> = ({ user, serviceId,
           />
 
           <div className="space-y-4 pt-2">
-            <h3 className="text-lg font-medium text-slate-900">Attachments</h3>
-            <div className="border-2 border-dashed border-slate-300 rounded-xl p-8 text-center hover:bg-slate-50 transition-colors relative group focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2">
+            <h3 className="text-lg font-medium text-slate-900 dark:text-white">Attachments</h3>
+            <div className="border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl p-8 text-center hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors relative group focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-slate-800">
               <input
                 type="file"
                 multiple
@@ -317,31 +317,31 @@ export const ServiceRequest: React.FC<ServiceRequestProps> = ({ user, serviceId,
                 aria-label="Upload files"
               />
               <div className="flex flex-col items-center pointer-events-none">
-                <div className="p-3 bg-indigo-50 text-indigo-600 rounded-full mb-3 group-hover:scale-110 transition-transform">
+                <div className="p-3 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 rounded-full mb-3 group-hover:scale-110 transition-transform">
                   <UploadCloud size={24} />
                 </div>
-                <p className="text-sm font-medium text-slate-900">
-                  <span className="text-indigo-600">Click to upload</span> or drag and drop
+                <p className="text-sm font-medium text-slate-900 dark:text-white">
+                  <span className="text-indigo-600 dark:text-indigo-400">Click to upload</span> or drag and drop
                 </p>
-                <p className="text-xs text-slate-500 mt-1">PDF, DOC, JPG, PNG (max. 10MB)</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">PDF, DOC, JPG, PNG (max. 10MB)</p>
               </div>
             </div>
 
             {formData.attachments && formData.attachments.length > 0 && (
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
                 {formData.attachments.map((file: File, index: number) => (
-                  <li key={`${file.name}-${index}`} className="flex items-center p-3 bg-white border border-slate-200 rounded-lg shadow-sm group">
-                    <div className="p-2 bg-slate-100 rounded-lg text-slate-500 mr-3">
+                  <li key={`${file.name}-${index}`} className="flex items-center p-3 bg-white dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 rounded-lg shadow-sm group">
+                    <div className="p-2 bg-slate-100 dark:bg-slate-600 rounded-lg text-slate-500 dark:text-slate-300 mr-3">
                       <File size={20} />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-900 truncate" title={file.name}>{file.name}</p>
-                      <p className="text-xs text-slate-500">{formatFileSize(file.size)}</p>
+                      <p className="text-sm font-medium text-slate-900 dark:text-white truncate" title={file.name}>{file.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400">{formatFileSize(file.size)}</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => removeFile(index)}
-                      className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
+                      className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
                       aria-label={`Remove ${file.name}`}
                     >
                       <Trash2 size={16} />
@@ -352,9 +352,9 @@ export const ServiceRequest: React.FC<ServiceRequestProps> = ({ user, serviceId,
             )}
           </div>
 
-          <div className="pt-8 border-t border-slate-100 flex items-center justify-between">
-            <p className="text-sm text-slate-400 hidden sm:block">
-              Fields marked with <span className="text-red-500">*</span> are required
+          <div className="pt-8 border-t border-slate-100 dark:border-slate-700 flex items-center justify-between">
+            <p className="text-sm text-slate-400 dark:text-slate-500 hidden sm:block">
+              Fields marked with <span className="text-red-500 dark:text-red-400">*</span> are required
             </p>
             <div className="flex gap-4 ml-auto">
               <Button type="button" variant="ghost" onClick={onBack}>Cancel</Button>
@@ -396,12 +396,12 @@ const FormFields: React.FC<FormFieldsProps> = ({ serviceId, formData, errors, on
        return (
         <div className="space-y-8">
           <fieldset>
-            <legend className="block text-sm font-medium text-slate-700 mb-3">Service Type</legend>
-            <div className="flex p-1 bg-slate-100 rounded-lg w-full sm:w-fit">
-              <label className={`flex-1 sm:flex-none text-center px-6 py-2.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-slate-100 ${formData.keyServiceType === 'courier' ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'}`}>
+            <legend className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Service Type</legend>
+            <div className="flex p-1 bg-slate-100 dark:bg-slate-700/50 rounded-lg w-full sm:w-fit">
+              <label className={`flex-1 sm:flex-none text-center px-6 py-2.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-slate-100 dark:focus-within:ring-offset-slate-800 ${formData.keyServiceType === 'courier' ? 'bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-black/5 dark:ring-white/10' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-600/50'}`}>
                 <input type="radio" name="key_service_type" value="courier" checked={formData.keyServiceType === 'courier'} onChange={() => onChange('keyServiceType', 'courier')} className="sr-only"/> Courier Dispatch
               </label>
-              <label className={`flex-1 sm:flex-none text-center px-6 py-2.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-slate-100 ${formData.keyServiceType === 'document' ? 'bg-white text-indigo-600 shadow-sm ring-1 ring-black/5' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/50'}`}>
+              <label className={`flex-1 sm:flex-none text-center px-6 py-2.5 text-sm font-medium rounded-md transition-all duration-200 cursor-pointer focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 focus-within:ring-offset-slate-100 dark:focus-within:ring-offset-slate-800 ${formData.keyServiceType === 'document' ? 'bg-white dark:bg-slate-600 text-indigo-600 dark:text-indigo-400 shadow-sm ring-1 ring-black/5 dark:ring-white/10' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-600/50'}`}>
                 <input type="radio" name="key_service_type" value="document" checked={formData.keyServiceType === 'document'} onChange={() => onChange('keyServiceType', 'document')} className="sr-only"/> Document Handling
               </label>
             </div>
@@ -427,10 +427,10 @@ const FormFields: React.FC<FormFieldsProps> = ({ serviceId, formData, errors, on
     case ServiceType.CANTEEN:
       return (
         <div className="space-y-8">
-           <div className="border-b border-slate-200">
+           <div className="border-b border-slate-200 dark:border-slate-700">
             <div role="tablist" aria-label="Canteen Request Type" className="-mb-px flex space-x-8">
-              <button type="button" role="tab" aria-selected={formData.canteenTab === 'new_emp'} onClick={() => onChange('canteenTab', 'new_emp')} className={`pb-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:rounded ${formData.canteenTab === 'new_emp' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}>New Employee</button>
-              <button type="button" role="tab" aria-selected={formData.canteenTab === 'guest'} onClick={() => onChange('canteenTab', 'guest')} className={`pb-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:rounded ${formData.canteenTab === 'guest' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}>Guest Request</button>
+              <button type="button" role="tab" aria-selected={formData.canteenTab === 'new_emp'} onClick={() => onChange('canteenTab', 'new_emp')} className={`pb-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:rounded ${formData.canteenTab === 'new_emp' ? 'border-indigo-600 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600'}`}>New Employee</button>
+              <button type="button" role="tab" aria-selected={formData.canteenTab === 'guest'} onClick={() => onChange('canteenTab', 'guest')} className={`pb-4 px-1 border-b-2 font-medium text-sm whitespace-nowrap transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:rounded ${formData.canteenTab === 'guest' ? 'border-indigo-600 dark:border-indigo-400 text-indigo-600 dark:text-indigo-400' : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:border-slate-300 dark:hover:border-slate-600'}`}>Guest Request</button>
             </div>
           </div>
           <div role="tabpanel" hidden={formData.canteenTab !== 'new_emp'} className={formData.canteenTab === 'new_emp' ? "space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300" : "hidden"}>
@@ -464,17 +464,17 @@ const FormFields: React.FC<FormFieldsProps> = ({ serviceId, formData, errors, on
       return (
         <div className="space-y-8">
            <fieldset>
-            <legend className="block text-sm font-medium text-slate-700 mb-3">Request Type</legend>
+            <legend className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-3">Request Type</legend>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <label className={`relative flex items-start p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer hover:bg-slate-50 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 ${formData.commType === 'sim' ? 'border-indigo-600 bg-indigo-50/30' : 'border-slate-200'}`}>
+              <label className={`relative flex items-start p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-slate-800 ${formData.commType === 'sim' ? 'border-indigo-600 dark:border-indigo-400 bg-indigo-50/30 dark:bg-indigo-900/20' : 'border-slate-200 dark:border-slate-600'}`}>
                 <div className="flex h-5 items-center"><input type="radio" name="comm-type" value="sim" className="h-4 w-4 border-slate-300 text-indigo-600 focus:ring-indigo-600" checked={formData.commType === 'sim'} onChange={() => onChange('commType', 'sim')} /></div>
-                <div className="ml-3 text-sm"><span className={`block font-medium ${formData.commType === 'sim' ? 'text-indigo-900' : 'text-slate-900'}`}>New SIM Card</span><span className={`block mt-1 ${formData.commType === 'sim' ? 'text-indigo-700' : 'text-slate-500'}`}>Voice & SMS enabled for corporate use</span></div>
-                <div className={`absolute top-4 right-4 ${formData.commType === 'sim' ? 'text-indigo-600' : 'text-slate-300'}`}><Signal size={20} /></div>
+                <div className="ml-3 text-sm"><span className={`block font-medium ${formData.commType === 'sim' ? 'text-indigo-900 dark:text-indigo-300' : 'text-slate-900 dark:text-white'}`}>New SIM Card</span><span className={`block mt-1 ${formData.commType === 'sim' ? 'text-indigo-700 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400'}`}>Voice & SMS enabled for corporate use</span></div>
+                <div className={`absolute top-4 right-4 ${formData.commType === 'sim' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-300 dark:text-slate-600'}`}><Signal size={20} /></div>
               </label>
-              <label className={`relative flex items-start p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer hover:bg-slate-50 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 ${formData.commType === 'bundle' ? 'border-indigo-600 bg-indigo-50/30' : 'border-slate-200'}`}>
+              <label className={`relative flex items-start p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700/50 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 dark:focus-within:ring-offset-slate-800 ${formData.commType === 'bundle' ? 'border-indigo-600 dark:border-indigo-400 bg-indigo-50/30 dark:bg-indigo-900/20' : 'border-slate-200 dark:border-slate-600'}`}>
                 <div className="flex h-5 items-center"><input type="radio" name="comm-type" value="bundle" className="h-4 w-4 border-slate-300 text-indigo-600 focus:ring-indigo-600" checked={formData.commType === 'bundle'} onChange={() => onChange('commType', 'bundle')} /></div>
-                <div className="ml-3 text-sm"><span className={`block font-medium ${formData.commType === 'bundle' ? 'text-indigo-900' : 'text-slate-900'}`}>Data Bundle</span><span className={`block mt-1 ${formData.commType === 'bundle' ? 'text-indigo-700' : 'text-slate-500'}`}>Add-on Internet Pack for existing line</span></div>
-                <div className={`absolute top-4 right-4 ${formData.commType === 'bundle' ? 'text-indigo-600' : 'text-slate-300'}`}><FileText size={20} /></div>
+                <div className="ml-3 text-sm"><span className={`block font-medium ${formData.commType === 'bundle' ? 'text-indigo-900 dark:text-indigo-300' : 'text-slate-900 dark:text-white'}`}>Data Bundle</span><span className={`block mt-1 ${formData.commType === 'bundle' ? 'text-indigo-700 dark:text-indigo-400' : 'text-slate-500 dark:text-slate-400'}`}>Add-on Internet Pack for existing line</span></div>
+                <div className={`absolute top-4 right-4 ${formData.commType === 'bundle' ? 'text-indigo-600 dark:text-indigo-400' : 'text-slate-300 dark:text-slate-600'}`}><FileText size={20} /></div>
               </label>
             </div>
           </fieldset>
@@ -490,16 +490,16 @@ const FormFields: React.FC<FormFieldsProps> = ({ serviceId, formData, errors, on
       return (
         <div className="space-y-6">
           <fieldset>
-            <legend className="block text-sm font-medium text-slate-700 mb-4">Required Services</legend>
+            <legend className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-4">Required Services</legend>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {['General Cleaner', 'Labor Support', 'Tea / Pantry Boy'].map((item) => (
-                <label key={item} className={`relative flex items-center p-4 rounded-lg border cursor-pointer transition-all duration-200 hover:bg-slate-50 ${(formData.housekeepingServices || []).includes(item) ? 'border-indigo-600 bg-indigo-50/30 ring-1 ring-indigo-600' : 'border-slate-200 hover:border-indigo-300'}`}>
+                <label key={item} className={`relative flex items-center p-4 rounded-lg border cursor-pointer transition-all duration-200 hover:bg-slate-50 dark:hover:bg-slate-700/50 ${(formData.housekeepingServices || []).includes(item) ? 'border-indigo-600 dark:border-indigo-400 bg-indigo-50/30 dark:bg-indigo-900/20 ring-1 ring-indigo-600 dark:ring-indigo-400' : 'border-slate-200 dark:border-slate-600 hover:border-indigo-300 dark:hover:border-indigo-500'}`}>
                   <input type="checkbox" className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" checked={(formData.housekeepingServices || []).includes(item)} onChange={() => toggleService(item)} />
-                  <span className="ml-3 text-sm font-medium text-slate-700">{item}</span>
+                  <span className="ml-3 text-sm font-medium text-slate-700 dark:text-slate-200">{item}</span>
                 </label>
               ))}
             </div>
-            {errors.housekeepingServices && <p className="mt-2 text-sm text-red-600">{errors.housekeepingServices}</p>}
+            {errors.housekeepingServices && <p className="mt-2 text-sm text-red-600 dark:text-red-400">{errors.housekeepingServices}</p>}
           </fieldset>
           <Input label="Location / Floor / Room" placeholder="e.g. 3rd Floor, Conference Room B" value={formData.location || ''} onChange={h('location')} error={errors.location} required />
           <TextArea label="Specific Tasks" placeholder="e.g. Deep cleaning required for..." value={formData.tasks || ''} onChange={h('tasks')} error={errors.tasks} className="min-h-[120px]" />

@@ -38,7 +38,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ user, requisitions }) 
     <div className="space-y-8">
       {/* Profile Header Card */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div className="h-32 bg-gradient-to-r from-indigo-500 to-purple-600"></div>
+        <div className="h-32 bg-gradient-to-r from-indigo-500 to-emerald-700"></div>
         <div className="px-6 pb-6">
           <div className="relative flex items-end -mt-12 mb-6">
             <img 

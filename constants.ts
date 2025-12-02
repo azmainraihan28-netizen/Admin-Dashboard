@@ -75,7 +75,7 @@ export const ADMIN_USER = {
   id: "d0eebc99-9c0b-4ef8-bb6d-6bb9bd380a12",
   staffId: "ADM-31303",
   department: "IT Operations",
-  avatarUrl: "https://ui-avatars.com/api/?name=System+Admin&background=6366f1&color=fff",
+  avatarUrl: "https://ui-avatars.com/api/?name=System+Admin&background=00A55D&color=fff",
 };
 
 export const MOCK_REQUISITIONS: Requisition[] = [
