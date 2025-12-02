@@ -25,6 +25,7 @@ export type ViewState =
   | 'admin-reports'
   | 'admin-activity-log'
   | 'profile'
+  | 'admin-employees'
   | { type: 'service'; serviceId: ServiceType };
 
 export type UserRole = 'employee' | 'admin';
@@ -47,8 +48,10 @@ export interface Requisition {
   department: string;
   date: string;
   status: RequisitionStatus;
-  summary: string; // A brief description generated from form data
+  summary: string;
   comments?: string;
+  formData?: any; // Stores the specific form inputs (JSON)
+  attachments?: any[]; // Stores file references
 }
 
 export interface ActivityLog {
@@ -65,6 +68,6 @@ export interface YearlyStat {
   approved: number;
   rejected: number;
   pending: number;
-  avgProcessingTime: string; // e.g., "4h 30m"
-  budgetUtilized: number; // Percentage 0-100
+  avgProcessingTime: string;
+  budgetUtilized: number;
 }

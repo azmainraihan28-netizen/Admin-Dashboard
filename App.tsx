@@ -9,6 +9,7 @@ import { AdminDashboard } from './views/AdminDashboard';
 import { UserProfile } from './views/UserProfile';
 import { AdminReports } from './views/AdminReports';
 import { AdminActivityLog } from './views/AdminActivityLog';
+import { AdminEmployees } from './views/AdminEmployees';
 import { supabase } from './lib/supabaseClient';
 
 const App: React.FC = () => {
@@ -57,11 +58,13 @@ const App: React.FC = () => {
         date: item.date,
         status: item.status,
         summary: item.summary,
-        comments: item.comments
+        comments: item.comments,
+        formData: item.form_data, // Map form_data from DB
+        attachments: item.attachments // Map attachments from DB
       }));
       setRequisitions(mapped);
     }
-    if (error) console.error('Error fetching requisitions:', error);
+    if (error) console.error('Error fetching requisitions:', error.message);
   };
 
   const fetchLogs = async () => {
@@ -80,7 +83,7 @@ const App: React.FC = () => {
       }));
       setActivityLogs(mapped);
     }
-    if (error) console.error('Error fetching logs:', error);
+    if (error) console.error('Error fetching logs:', error.message);
   };
 
   const fetchData = () => {
@@ -133,6 +136,10 @@ const App: React.FC = () => {
     setViewState('admin-activity-log');
   };
 
+  const handleNavigateEmployees = () => {
+    setViewState('admin-employees');
+  };
+
   // --- Actions ---
 
   const handleCreateRequisition = async (newRequisition: Requisition) => {
@@ -146,17 +153,18 @@ const App: React.FC = () => {
       date: newRequisition.date,
       status: newRequisition.status,
       summary: newRequisition.summary,
-      comments: newRequisition.comments
+      comments: newRequisition.comments,
+      form_data: newRequisition.formData, // Store full form data
+      attachments: newRequisition.attachments // Store attachments
     }]);
 
     if (error) {
-      console.error('Error creating requisition:', error);
+      console.error('Error creating requisition:', error.message);
       return;
     }
     
     // 2. Log creation
     const newLog = {
-      id: `LOG-${Math.floor(Math.random() * 100000)}`,
       action: `New requisition ${newRequisition.id} submitted by ${newRequisition.requesterName}`,
       user_name: newRequisition.requesterName,
       timestamp: new Date().toLocaleTimeString(),
@@ -164,6 +172,10 @@ const App: React.FC = () => {
     };
 
     await supabase.from('activity_logs').insert([newLog]);
+    
+    // Refresh local data immediately
+    fetchRequisitions();
+    fetchLogs();
   };
 
   const handleRequisitionAction = async (id: string, action: RequisitionStatus, comment?: string) => {
@@ -177,7 +189,7 @@ const App: React.FC = () => {
       .eq('id', id);
 
     if (error) {
-      console.error('Error updating requisition:', error);
+      console.error('Error updating requisition:', error.message);
       return;
     }
 
@@ -188,7 +200,6 @@ const App: React.FC = () => {
     if (action === 'In Review') logType = 'warning';
 
     const newLog = {
-      id: `LOG-${Math.floor(Math.random() * 100000)}`,
       action: `${action} request ${id}${comment ? ` with comment: "${comment}"` : ''}`,
       user_name: currentUser?.role === 'admin' ? currentUser.name : 'System',
       timestamp: new Date().toLocaleTimeString(),
@@ -196,6 +207,10 @@ const App: React.FC = () => {
     };
 
     await supabase.from('activity_logs').insert([newLog]);
+    
+    // Refresh local data
+    fetchRequisitions();
+    fetchLogs();
   };
 
   // Login View
@@ -213,6 +228,7 @@ const App: React.FC = () => {
       onNavigateProfile={handleNavigateProfile}
       onNavigateReports={handleNavigateReports}
       onNavigateActivityLog={handleNavigateActivityLog}
+      onNavigateEmployees={handleNavigateEmployees}
       isAdmin={currentUser.role === 'admin'}
     >
       {viewState === 'admin-dashboard' && currentUser.role === 'admin' && (
@@ -226,6 +242,9 @@ const App: React.FC = () => {
       )}
       {viewState === 'admin-activity-log' && currentUser.role === 'admin' && (
         <AdminActivityLog logs={activityLogs} />
+      )}
+      {viewState === 'admin-employees' && currentUser.role === 'admin' && (
+        <AdminEmployees />
       )}
       {viewState === 'dashboard' && currentUser.role === 'employee' && (
         <Dashboard onSelectService={handleSelectService} />

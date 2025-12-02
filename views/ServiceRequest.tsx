@@ -6,7 +6,7 @@ import { Button } from '../components/ui/Button';
 import { Input, TextArea, Select } from '../components/ui/Input';
 import { ArrowLeft, CheckCircle2, Shield, Signal, FileText, UploadCloud, File, Trash2 } from 'lucide-react';
 
-// --- Validation Schemas --- (Same as before)
+// --- Validation Schemas ---
 
 const baseSchema = yup.object({});
 
@@ -213,6 +213,8 @@ export const ServiceRequest: React.FC<ServiceRequestProps> = ({ user, serviceId,
         date: new Date().toISOString().split('T')[0],
         status: 'Pending',
         summary: generateSummary(serviceId, formData),
+        formData: formData, // Include full form data
+        attachments: formData.attachments // Include attachments
       };
 
       await onSubmit(newRequisition);
