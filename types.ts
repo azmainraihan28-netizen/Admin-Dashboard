@@ -28,11 +28,11 @@ export type ViewState =
   | 'admin-employees'
   | { type: 'service'; serviceId: ServiceType };
 
-export type UserRole = 'employee' | 'admin';
+export type UserRole = 'employee' | 'admin' | 'editor' | 'viewer';
 
 export interface User {
   name: string;
-  id: string; // Must be UUID for Supabase
+  id: string;
   staffId?: string; // Human readable ID (EMP-001)
   department: string;
   avatarUrl: string;
